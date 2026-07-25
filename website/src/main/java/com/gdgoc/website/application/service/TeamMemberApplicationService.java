@@ -1,0 +1,146 @@
+package com.gdgoc.website.application.service;
+
+import com.gdgoc.website.application.dto.SaveTeamMemberDraftRequest;
+import com.gdgoc.website.application.entity.*;
+import com.gdgoc.website.application.repository.ApplicationInterviewTimeRepository;
+import com.gdgoc.website.application.repository.ApplicationRepository;
+import com.gdgoc.website.application.repository.InterviewTimeSlotRepository;
+import com.gdgoc.website.application.repository.TeamMemberApplicationRepository;
+import com.gdgoc.website.global.exception.BaseException;
+import com.gdgoc.website.global.exception.ErrorCode;
+import com.gdgoc.website.user.entity.User;
+import com.gdgoc.website.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class TeamMemberApplicationService {
+
+    private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
+    private final TeamMemberApplicationRepository teamMemberApplicationRepository;
+    private final InterviewTimeSlotRepository interviewTimeSlotRepository;
+    private final ApplicationInterviewTimeRepository applicationInterviewTimeRepository;
+
+    @Transactional
+    public void saveTeamMemberDraft(Long userId, SaveTeamMemberDraftRequest teamMemberDraft) {
+        // 1. 현재 로그인한 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));
+
+        // 2. 해당 사용자가 작성한 Team Member 지원서가 있는지 확인
+        Application application = applicationRepository
+                .findByUserAndApplicationType(user, ApplicationType.TEAM_MEMBER)
+                .orElse(null);
+
+        if (application == null) {
+            // 3-1. 없을 경우 생성
+            application = new Application(
+                    user,
+                    ApplicationType.TEAM_MEMBER,
+                    teamMemberDraft.studentNumber(),
+                    teamMemberDraft.phoneNumber(),
+                    teamMemberDraft.major(),
+                    teamMemberDraft.completedSemester(),
+                    teamMemberDraft.onLeave()
+            );
+
+            applicationRepository.save(application);
+
+            TeamMemberApplication teamMemberApplication = new TeamMemberApplication(
+                    application,
+                    teamMemberDraft.introduction(),
+                    teamMemberDraft.motivation(),
+                    teamMemberDraft.communityPerspective(),
+                    teamMemberDraft.goal(),
+                    teamMemberDraft.portfolioUrl(),
+                    teamMemberDraft.project(),
+                    teamMemberDraft.leadershipExperience(),
+                    teamMemberDraft.techStack(),
+                    teamMemberDraft.studyField(),
+                    teamMemberDraft.roles(),
+                    teamMemberDraft.eventIdea()
+            );
+
+            teamMemberApplicationRepository.save(teamMemberApplication);
+        } else {
+            // 3-2. 있을 경우 업데이트
+
+            // 이미 제출된 지원서인 경우 에러
+            if (application.getApplicationStatus() == ApplicationStatus.SUBMITTED) {
+                throw new BaseException(ErrorCode.APPLICATION_ALREADY_SUBMITTED);
+            }
+
+            application.update(
+                    teamMemberDraft.studentNumber(),
+                    teamMemberDraft.phoneNumber(),
+                    teamMemberDraft.major(),
+                    teamMemberDraft.completedSemester(),
+                    teamMemberDraft.onLeave()
+            );
+
+            Long applicationId = application.getId();
+            TeamMemberApplication teamMemberApplication = teamMemberApplicationRepository
+                    .findById(applicationId)
+                    .orElseThrow(() -> {
+                        log.error("Application(id={})은 존재하지만 TeamMemberApplication이 존재하지 않습니다.", applicationId);
+                        return new BaseException(ErrorCode.APPLICATION_DETAIL_NOT_FOUND);
+                    });
+
+            teamMemberApplication.update(
+                    teamMemberDraft.introduction(),
+                    teamMemberDraft.motivation(),
+                    teamMemberDraft.communityPerspective(),
+                    teamMemberDraft.goal(),
+                    teamMemberDraft.portfolioUrl(),
+                    teamMemberDraft.project(),
+                    teamMemberDraft.leadershipExperience(),
+                    teamMemberDraft.techStack(),
+                    teamMemberDraft.studyField(),
+                    teamMemberDraft.roles(),
+                    teamMemberDraft.eventIdea()
+            );
+        }
+        replaceApplicationInterviewTimes(application, teamMemberDraft.interviewTimeSlotIds());
+    }
+
+    /** 면접 가능 시간을 새 목록으로 교체 */
+    private void replaceApplicationInterviewTimes(Application application, List<Long> availableInterviewTimeSlotIds) {
+        Set<Long> uniqueTimeSlotIds = availableInterviewTimeSlotIds == null
+                ? Set.of()
+                : new HashSet<>(availableInterviewTimeSlotIds);
+
+        List<InterviewTimeSlot> availableInterviewTimeSlots = interviewTimeSlotRepository.findAllById(uniqueTimeSlotIds);
+
+        // 1. 존재하지 않는 timeSlotId가 포함되어있는지 확인
+        if (availableInterviewTimeSlots.size() != uniqueTimeSlotIds.size()) {
+            throw new BaseException(ErrorCode.INTERVIEW_TIME_SLOT_NOT_FOUND, "존재하지 않는 면접 시간대가 포함되어 있습니다.");
+        }
+
+        // 2. Application의 지원 유형과 availableInterviewTimeSlots의 지원 유형이 일치하는지 검증
+        ApplicationType applicationType = application.getApplicationType();
+        boolean hasInvalidApplicationType = availableInterviewTimeSlots.stream()
+                .anyMatch(slot -> slot.getApplicationType() != applicationType);
+
+        if (hasInvalidApplicationType) {
+            throw new BaseException(ErrorCode.INVALID_INTERVIEW_TIME_SLOT, "지원 유형에 해당하지 않는 면접 시간대가 포함되어 있습니다.");
+        }
+
+        List<ApplicationInterviewTime> applicationInterviewTimes = availableInterviewTimeSlots.stream()
+                .map(slot -> new ApplicationInterviewTime(application, slot))
+                .toList();
+
+        // 3. 전체 삭제 후 새로 저장
+        applicationInterviewTimeRepository.deleteAllByApplication(application);
+        applicationInterviewTimeRepository.saveAll(applicationInterviewTimes);
+    }
+
+}
