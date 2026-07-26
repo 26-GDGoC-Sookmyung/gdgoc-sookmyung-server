@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tools.jackson.databind.exc.InvalidFormatException;
 
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -57,22 +58,41 @@ public class GlobalExceptionHandler {
                 .body(BaseResponse.error(ErrorCode.INVALID_INPUT_VALUE, message));
     }
 
-    // 요청 본문 파싱에 실패한 경우 (Enum 값이 잘못된 경우 등)
+    // 요청 본문 파싱에 실패한 경우 (Enum 값 오류, 타입 오류, 잘못된 JSON 형식 등)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<BaseResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         Throwable cause = e.getMostSpecificCause();
+        String message = "잘못된 요청 본문입니다.";
 
         if (cause instanceof InvalidFormatException ex) { // 타입 오류, Enum 오류
-            log.warn("HttpMessageNotReadableException - field: {}, value: {}",
+            String fieldName = ex.getPath().isEmpty()
+                    ? null
+                    : ex.getPath().get(0).getPropertyName();
+
+            log.warn("HttpMessageNotReadableException - field: {}, value: {}, targetType: {}",
                     ex.getPathReference(),
-                    ex.getValue());
+                    ex.getValue(),
+                    ex.getTargetType().getSimpleName());
+
+            if (fieldName != null) {
+                message = fieldName + " 값의 형식이 올바르지 않습니다.";
+            }
         } else {
             log.warn("HttpMessageNotReadableException - {}", cause.getMessage());
         }
 
         return ResponseEntity
                 .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
-                .body(BaseResponse.error(ErrorCode.INVALID_INPUT_VALUE, "잘못된 요청 본문입니다."));
+                .body(BaseResponse.error(ErrorCode.INVALID_INPUT_VALUE, message));
+    }
+
+    // 처리되지 않은 모든 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<?>> handleException(Exception e) {
+        log.error("Exception - " + e);
+
+        return ResponseEntity.internalServerError()
+                .body(BaseResponse.error(ErrorCode.INTERNAL_SERVER_ERROR, "서버에서 예상치 못한 오류가 발생했습니다."));
     }
 
 }
