@@ -33,7 +33,7 @@ public class TeamMemberApplicationService {
     @Transactional
     public void saveTeamMemberDraft(Long userId, SaveTeamMemberDraftRequest teamMemberDraft) {
         // 1. 현재 로그인한 사용자 조회
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));
 
         // 2. 해당 사용자가 작성한 Team Member 지원서가 있는지 확인
