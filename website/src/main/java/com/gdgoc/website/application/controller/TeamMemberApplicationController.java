@@ -2,6 +2,7 @@ package com.gdgoc.website.application.controller;
 
 import com.gdgoc.website.application.dto.SaveTeamMemberDraftRequest;
 import com.gdgoc.website.application.dto.SubmitTeamMemberApplicationRequest;
+import com.gdgoc.website.application.dto.TeamMemberApplicationResponse;
 import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.service.TeamMemberApplicationService;
 import com.gdgoc.website.global.response.BaseResponse;
@@ -59,5 +60,12 @@ public class TeamMemberApplicationController {
         return ResponseEntity.ok(BaseResponse.success(interviewTimeSlots));
     }
 
+    @GetMapping
+    @Operation(summary = "기존에 작성하던 / 제출한 Team Member 지원서 내용 조회",
+            description = "작성한 지원서가 없는 경우 data는 null로 반환됩니다.")
+    public ResponseEntity<BaseResponse<?>> getTeamMemberApplication() {
+        TeamMemberApplicationResponse teamMemberApplication = teamMemberApplicationService.getTeamMemberApplication(1L);
+        return ResponseEntity.ok(BaseResponse.success(teamMemberApplication));
+    }
 
 }

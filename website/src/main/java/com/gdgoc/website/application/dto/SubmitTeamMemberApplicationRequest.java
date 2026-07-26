@@ -60,13 +60,13 @@ public record SubmitTeamMemberApplicationRequest(
         String studyField,
 
         @NotEmpty
-        @Schema(example = "[STUDY_LEAD, MANAGEMENT, PROJECT_MENTOR]")
+        @Schema(example = "[\"STUDY_LEAD\", \"MANAGEMENT\", \"PROJECT_MENTOR\"]")
         Set<TeamMemberRole> roles,
 
         String eventIdea,
 
         @NotEmpty
-        @Schema(example = "[1, 2]")
+        @Schema(example = "[24, 25]")
         List<Long> interviewTimeSlotIds
 
 ) {

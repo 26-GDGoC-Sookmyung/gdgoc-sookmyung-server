@@ -2,6 +2,7 @@ package com.gdgoc.website.application.service;
 
 import com.gdgoc.website.application.dto.SaveTeamMemberDraftRequest;
 import com.gdgoc.website.application.dto.SubmitTeamMemberApplicationRequest;
+import com.gdgoc.website.application.dto.TeamMemberApplicationResponse;
 import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.entity.*;
 import com.gdgoc.website.application.repository.ApplicationInterviewTimeRepository;
@@ -191,6 +192,36 @@ public class TeamMemberApplicationService {
         return new TeamMemberInterviewTimeSlotResponse(
                 interviewTimeSlot.getId(),
                 interviewTimeSlot.getTimeSlot()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public TeamMemberApplicationResponse getTeamMemberApplication(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));
+
+        Application application = applicationRepository
+                .findByUserAndApplicationType(user, ApplicationType.TEAM_MEMBER)
+                .orElse(null);
+
+        if (application == null) {
+            return null;
+        }
+
+        Long applicationId = application.getId();
+        TeamMemberApplication teamMemberApplication = teamMemberApplicationRepository
+                .findById(applicationId)
+                .orElseThrow(() -> {
+                    log.error("Application(id={})은 존재하지만 TeamMemberApplication이 존재하지 않습니다.", applicationId);
+                    return new BaseException(ErrorCode.APPLICATION_DETAIL_NOT_FOUND);
+                });
+
+        List<Long> interviewTimeSlotIds = applicationInterviewTimeRepository.findInterviewTimeSlotIdsByApplicationId(applicationId);
+
+        return TeamMemberApplicationResponse.from(
+                application,
+                teamMemberApplication,
+                interviewTimeSlotIds
         );
     }
 
