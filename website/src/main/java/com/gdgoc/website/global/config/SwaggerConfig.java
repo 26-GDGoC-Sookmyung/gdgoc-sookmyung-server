@@ -48,6 +48,10 @@ public class SwaggerConfig {
                                     - 서버에서 예상치 못한 에러가 발생한 경우
                                 
                                 API별로 발생 가능한 추가 에러는 각 API 문서를 참고해주세요.
+                                
+                                ### 참고사항 ⭐
+                                - 일부 필드(예: Enum 값, 전화번호 형식)의 상세 설명은 각 API의 Request Body → Schema 탭에서 확인할 수 있습니다.
+                                - API별 예외 상황, 에러 코드 및 상세 설명은 노션 'Back-End > API별 예외 상황' 페이지를 참고해주세요.
                                 """));
     }
 
