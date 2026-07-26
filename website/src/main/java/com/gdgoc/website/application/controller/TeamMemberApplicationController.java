@@ -2,6 +2,7 @@ package com.gdgoc.website.application.controller;
 
 import com.gdgoc.website.application.dto.SaveTeamMemberDraftRequest;
 import com.gdgoc.website.application.dto.SubmitTeamMemberApplicationRequest;
+import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.service.TeamMemberApplicationService;
 import com.gdgoc.website.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,5 +51,13 @@ public class TeamMemberApplicationController {
         teamMemberApplicationService.submitTeamMemberApplication(1L, teamMemberApplication);
         return ResponseEntity.ok(BaseResponse.success(null));
     }
+
+    @GetMapping("/interview-time")
+    @Operation(summary = "Team Member 면접시간대 조회")
+    public ResponseEntity<BaseResponse<?>> getTeamMemberInterviewTimeSlots() {
+        List<TeamMemberInterviewTimeSlotResponse> interviewTimeSlots = teamMemberApplicationService.getTeamMemberInterviewTimeSlots();
+        return ResponseEntity.ok(BaseResponse.success(interviewTimeSlots));
+    }
+
 
 }

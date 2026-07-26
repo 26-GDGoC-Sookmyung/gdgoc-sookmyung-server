@@ -2,6 +2,7 @@ package com.gdgoc.website.application.service;
 
 import com.gdgoc.website.application.dto.SaveTeamMemberDraftRequest;
 import com.gdgoc.website.application.dto.SubmitTeamMemberApplicationRequest;
+import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.entity.*;
 import com.gdgoc.website.application.repository.ApplicationInterviewTimeRepository;
 import com.gdgoc.website.application.repository.ApplicationRepository;
@@ -179,6 +180,18 @@ public class TeamMemberApplicationService {
         applicationInterviewTimeRepository.deleteAllByApplication(application);
         applicationInterviewTimeRepository.flush();
         applicationInterviewTimeRepository.saveAll(applicationInterviewTimes);
+    }
+
+    public List<TeamMemberInterviewTimeSlotResponse> getTeamMemberInterviewTimeSlots() {
+        List<InterviewTimeSlot> timeSlots = interviewTimeSlotRepository.findAllByApplicationTypeOrderById(ApplicationType.TEAM_MEMBER);
+        return timeSlots.stream().map(this::toTeamMemberInterviewTimeSlotResponse).toList();
+    }
+
+    private TeamMemberInterviewTimeSlotResponse toTeamMemberInterviewTimeSlotResponse(InterviewTimeSlot interviewTimeSlot) {
+        return new TeamMemberInterviewTimeSlotResponse(
+                interviewTimeSlot.getId(),
+                interviewTimeSlot.getTimeSlot()
+        );
     }
 
 }
