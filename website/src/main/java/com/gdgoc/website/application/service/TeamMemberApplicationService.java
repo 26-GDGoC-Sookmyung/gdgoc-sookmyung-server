@@ -1,6 +1,7 @@
 package com.gdgoc.website.application.service;
 
 import com.gdgoc.website.application.dto.SaveTeamMemberDraftRequest;
+import com.gdgoc.website.application.dto.SubmitTeamMemberApplicationRequest;
 import com.gdgoc.website.application.entity.*;
 import com.gdgoc.website.application.repository.ApplicationInterviewTimeRepository;
 import com.gdgoc.website.application.repository.ApplicationRepository;
@@ -31,7 +32,41 @@ public class TeamMemberApplicationService {
     private final ApplicationInterviewTimeRepository applicationInterviewTimeRepository;
 
     @Transactional
-    public void saveTeamMemberDraft(Long userId, SaveTeamMemberDraftRequest teamMemberDraft) {
+    public void saveTeamMemberDraft(Long userId, SaveTeamMemberDraftRequest request) {
+         saveOrUpdateTeamMemberApplication(userId, request);
+    }
+
+
+    @Transactional
+    public void submitTeamMemberApplication(Long userId, SubmitTeamMemberApplicationRequest request) {
+        Application application = saveOrUpdateTeamMemberApplication(userId, toSaveTeamMemberDraftRequest(request));
+        application.submit();
+    }
+
+    private SaveTeamMemberDraftRequest toSaveTeamMemberDraftRequest(SubmitTeamMemberApplicationRequest request) {
+        return new SaveTeamMemberDraftRequest(
+                request.studentNumber(),
+                request.phoneNumber(),
+                request.major(),
+                request.completedSemester(),
+                request.onLeave(),
+                request.introduction(),
+                request.motivation(),
+                request.communityPerspective(),
+                request.goal(),
+                request.portfolioUrl(),
+                request.project(),
+                request.leadershipExperience(),
+                request.techStack(),
+                request.studyField(),
+                request.roles(),
+                request.eventIdea(),
+                request.interviewTimeSlotIds()
+        );
+    }
+
+    /** Team Member Application 생성 및 수정 공통 로직 */
+    private Application saveOrUpdateTeamMemberApplication(Long userId, SaveTeamMemberDraftRequest request) {
         // 1. 현재 로그인한 사용자 조회
         User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));
@@ -46,28 +81,28 @@ public class TeamMemberApplicationService {
             application = new Application(
                     user,
                     ApplicationType.TEAM_MEMBER,
-                    teamMemberDraft.studentNumber(),
-                    teamMemberDraft.phoneNumber(),
-                    teamMemberDraft.major(),
-                    teamMemberDraft.completedSemester(),
-                    teamMemberDraft.onLeave()
+                    request.studentNumber(),
+                    request.phoneNumber(),
+                    request.major(),
+                    request.completedSemester(),
+                    request.onLeave()
             );
 
             applicationRepository.save(application);
 
             TeamMemberApplication teamMemberApplication = new TeamMemberApplication(
                     application,
-                    teamMemberDraft.introduction(),
-                    teamMemberDraft.motivation(),
-                    teamMemberDraft.communityPerspective(),
-                    teamMemberDraft.goal(),
-                    teamMemberDraft.portfolioUrl(),
-                    teamMemberDraft.project(),
-                    teamMemberDraft.leadershipExperience(),
-                    teamMemberDraft.techStack(),
-                    teamMemberDraft.studyField(),
-                    teamMemberDraft.roles(),
-                    teamMemberDraft.eventIdea()
+                    request.introduction(),
+                    request.motivation(),
+                    request.communityPerspective(),
+                    request.goal(),
+                    request.portfolioUrl(),
+                    request.project(),
+                    request.leadershipExperience(),
+                    request.techStack(),
+                    request.studyField(),
+                    request.roles(),
+                    request.eventIdea()
             );
 
             teamMemberApplicationRepository.save(teamMemberApplication);
@@ -80,11 +115,11 @@ public class TeamMemberApplicationService {
             }
 
             application.update(
-                    teamMemberDraft.studentNumber(),
-                    teamMemberDraft.phoneNumber(),
-                    teamMemberDraft.major(),
-                    teamMemberDraft.completedSemester(),
-                    teamMemberDraft.onLeave()
+                    request.studentNumber(),
+                    request.phoneNumber(),
+                    request.major(),
+                    request.completedSemester(),
+                    request.onLeave()
             );
 
             Long applicationId = application.getId();
@@ -96,20 +131,22 @@ public class TeamMemberApplicationService {
                     });
 
             teamMemberApplication.update(
-                    teamMemberDraft.introduction(),
-                    teamMemberDraft.motivation(),
-                    teamMemberDraft.communityPerspective(),
-                    teamMemberDraft.goal(),
-                    teamMemberDraft.portfolioUrl(),
-                    teamMemberDraft.project(),
-                    teamMemberDraft.leadershipExperience(),
-                    teamMemberDraft.techStack(),
-                    teamMemberDraft.studyField(),
-                    teamMemberDraft.roles(),
-                    teamMemberDraft.eventIdea()
+                    request.introduction(),
+                    request.motivation(),
+                    request.communityPerspective(),
+                    request.goal(),
+                    request.portfolioUrl(),
+                    request.project(),
+                    request.leadershipExperience(),
+                    request.techStack(),
+                    request.studyField(),
+                    request.roles(),
+                    request.eventIdea()
             );
         }
-        replaceApplicationInterviewTimes(application, teamMemberDraft.interviewTimeSlotIds());
+        replaceApplicationInterviewTimes(application, request.interviewTimeSlotIds());
+
+        return application;
     }
 
     /** 면접 가능 시간을 새 목록으로 교체 */
@@ -140,6 +177,7 @@ public class TeamMemberApplicationService {
 
         // 3. 전체 삭제 후 새로 저장
         applicationInterviewTimeRepository.deleteAllByApplication(application);
+        applicationInterviewTimeRepository.flush();
         applicationInterviewTimeRepository.saveAll(applicationInterviewTimes);
     }
 
