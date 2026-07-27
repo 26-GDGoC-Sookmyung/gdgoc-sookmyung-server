@@ -41,9 +41,8 @@ public class GlobalExceptionHandler {
         if (fieldError != null) {
             String code = fieldError.getCode();
 
-            log.warn("MethodArgumentNotValidException - field: {}, value: {}, constraint: {}",
+            log.warn("MethodArgumentNotValidException - field: {}, constraint: {}",
                     fieldError.getField(),
-                    fieldError.getRejectedValue(),
                     fieldError.getCode());
 
             // 메시지 변경
@@ -69,9 +68,8 @@ public class GlobalExceptionHandler {
                     ? null
                     : ex.getPath().get(0).getPropertyName();
 
-            log.warn("HttpMessageNotReadableException - field: {}, value: {}, targetType: {}",
+            log.warn("HttpMessageNotReadableException - field: {}, targetType: {}",
                     ex.getPathReference(),
-                    ex.getValue(),
                     ex.getTargetType().getSimpleName());
 
             if (fieldName != null) {

@@ -4,6 +4,7 @@ import com.gdgoc.website.application.entity.Application;
 import com.gdgoc.website.application.entity.ApplicationInterviewTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface ApplicationInterviewTimeRepository extends JpaRepository<Applic
         from ApplicationInterviewTime ait
         where ait.application.id = :applicationId
         """)
-    List<Long> findInterviewTimeSlotIdsByApplicationId(Long applicationId);
+    List<Long> findInterviewTimeSlotIdsByApplicationId(@Param("applicationId") Long applicationId);
 }

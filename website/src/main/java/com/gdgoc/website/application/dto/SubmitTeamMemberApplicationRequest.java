@@ -17,7 +17,7 @@ public record SubmitTeamMemberApplicationRequest(
         String studentNumber,
 
         @NotBlank
-        @Pattern(regexp = "^010-?\\d{4}-?\\d{4}$",
+        @Pattern(regexp = "^010-\\d{4}-\\d{4}$",
                 message = "전화번호는 010-XXXX-XXXX 형식이어야 합니다.")
         @Schema(example = "010-1234-5678")
         String phoneNumber,
