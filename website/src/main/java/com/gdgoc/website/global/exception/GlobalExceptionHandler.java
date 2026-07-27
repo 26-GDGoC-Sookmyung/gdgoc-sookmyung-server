@@ -16,7 +16,9 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         String errorMessage = e.getMessage();
 
-        log.error(errorCode + " - " + errorMessage);
+        if (!errorCode.getStatus().is5xxServerError()) {
+            log.error(errorCode + " - " + errorMessage);
+        }
 
         return ResponseEntity
                 .status(errorCode.getStatus())
