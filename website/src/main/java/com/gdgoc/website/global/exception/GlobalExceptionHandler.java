@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
     // 처리되지 않은 모든 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<?>> handleException(Exception e) {
-        log.error("Exception - " + e);
+        log.error("Exception - ", e);
 
         return ResponseEntity.internalServerError()
                 .body(BaseResponse.error(ErrorCode.INTERNAL_SERVER_ERROR, "서버에서 예상치 못한 오류가 발생했습니다."));
