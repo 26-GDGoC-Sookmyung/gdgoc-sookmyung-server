@@ -3,8 +3,13 @@ package com.gdgoc.website.global.exception;
 import com.gdgoc.website.global.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import tools.jackson.databind.exc.InvalidFormatException;
+
 
 @Slf4j
 @RestControllerAdvice
@@ -23,6 +28,69 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(BaseResponse.error(errorCode, errorMessage));
+    }
+
+    // RequestBody 검증 실패한 경우 (필수 입력 항목 누락 / 형식 오류)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        FieldError fieldError = e.getBindingResult().getFieldError();
+
+        String message = "필수 입력 항목이 누락되었거나 잘못된 형식입니다.";
+
+        // 입력 형식 오류 시
+        if (fieldError != null) {
+            String code = fieldError.getCode();
+
+            log.warn("MethodArgumentNotValidException - field: {}, constraint: {}",
+                    fieldError.getField(),
+                    fieldError.getCode());
+
+            // 메시지 변경
+            if ("Pattern".equals(code) || "Email".equals(code) || "Size".equals(code)
+                    || "Min".equals(code) || "Max".equals(code)) {
+                message = fieldError.getDefaultMessage();
+            }
+        }
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(BaseResponse.error(ErrorCode.INVALID_INPUT_VALUE, message));
+    }
+
+    // 요청 본문 파싱에 실패한 경우 (Enum 값 오류, 타입 오류, 잘못된 JSON 형식 등)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<BaseResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        Throwable cause = e.getMostSpecificCause();
+        String message = "잘못된 요청 본문입니다.";
+
+        if (cause instanceof InvalidFormatException ex) { // 타입 오류, Enum 오류
+            String fieldName = ex.getPath().isEmpty()
+                    ? null
+                    : ex.getPath().get(0).getPropertyName();
+
+            log.warn("HttpMessageNotReadableException - field: {}, targetType: {}",
+                    ex.getPathReference(),
+                    ex.getTargetType().getSimpleName());
+
+            if (fieldName != null) {
+                message = fieldName + " 값의 형식이 올바르지 않습니다.";
+            }
+        } else {
+            log.warn("HttpMessageNotReadableException - {}", cause.getMessage());
+        }
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(BaseResponse.error(ErrorCode.INVALID_INPUT_VALUE, message));
+    }
+
+    // 처리되지 않은 모든 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<?>> handleException(Exception e) {
+        log.error("Exception - ", e);
+
+        return ResponseEntity.internalServerError()
+                .body(BaseResponse.error(ErrorCode.INTERNAL_SERVER_ERROR, "서버에서 예상치 못한 오류가 발생했습니다."));
     }
 
 }
