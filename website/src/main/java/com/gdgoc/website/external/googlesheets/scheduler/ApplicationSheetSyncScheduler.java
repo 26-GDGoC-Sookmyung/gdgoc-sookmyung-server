@@ -23,9 +23,9 @@ public class ApplicationSheetSyncScheduler {
     @Scheduled(fixedDelay = 30000) // 30초
     public void syncPendingApplications() {
         List<Application> applications =
-                applicationRepository.findTop10ByApplicationStatusAndSheetSyncStatusInOrderByIdAsc(
+                applicationRepository.findTop10ByApplicationStatusAndSheetSyncStatusOrderByIdAsc(
                         ApplicationStatus.SUBMITTED,
-                        List.of(SheetSyncStatus.PENDING, SheetSyncStatus.FAILED)
+                        SheetSyncStatus.PENDING
                 );
 
         for (Application application : applications) {

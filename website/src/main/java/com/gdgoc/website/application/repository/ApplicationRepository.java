@@ -12,6 +12,5 @@ import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     Optional<Application> findByUserAndApplicationType(User user, ApplicationType applicationType);
-    List<Application> findTop10ByApplicationStatusAndSheetSyncStatusInOrderByIdAsc(ApplicationStatus applicationStatus,
-                                                                                   List<SheetSyncStatus> sheetSyncStatuses);
+    List<Application> findTop10ByApplicationStatusAndSheetSyncStatusOrderByIdAsc(ApplicationStatus applicationStatus, SheetSyncStatus sheetSyncStatus);
 }

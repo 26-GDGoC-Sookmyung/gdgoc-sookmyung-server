@@ -5,6 +5,7 @@ import com.gdgoc.website.application.repository.InterviewTimeSlotRepository;
 import com.gdgoc.website.global.exception.BaseException;
 import com.gdgoc.website.global.exception.ErrorCode;
 import com.gdgoc.website.user.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -12,14 +13,12 @@ import java.util.List;
 import java.util.Set;
 
 @Component
+@RequiredArgsConstructor
 public class TeamMemberApplicationSheetMapper {
 
     private static final int TEAM_MEMBER_SLOT_COUNT = 13;
-    private final InterviewTimeSlotRepository interviewTimeSlotRepository;
 
-    public TeamMemberApplicationSheetMapper(InterviewTimeSlotRepository interviewTimeSlotRepository) {
-        this.interviewTimeSlotRepository = interviewTimeSlotRepository;
-    }
+    private final InterviewTimeSlotRepository interviewTimeSlotRepository;
 
     public List<Object> toRow(
             Application application,
