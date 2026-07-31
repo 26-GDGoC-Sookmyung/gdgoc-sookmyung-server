@@ -86,4 +86,9 @@ public class Application extends BaseTimeEntity {
         this.onLeave = onLeave;
     }
 
+    public void submit() {
+        this.applicationStatus = ApplicationStatus.SUBMITTED;
+        this.sheetSyncStatus = SheetSyncStatus.PENDING;
+    }
+
 }
