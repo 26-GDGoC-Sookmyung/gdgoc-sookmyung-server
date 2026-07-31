@@ -3,7 +3,9 @@ package com.gdgoc.website.external.googlesheets.service;
 import com.gdgoc.website.application.entity.*;
 import com.gdgoc.website.application.repository.ApplicationInterviewTimeRepository;
 import com.gdgoc.website.application.repository.ApplicationRepository;
+import com.gdgoc.website.application.repository.MemberApplicationRepository;
 import com.gdgoc.website.application.service.TeamMemberApplicationService;
+import com.gdgoc.website.external.googlesheets.mapper.MemberApplicationSheetMapper;
 import com.gdgoc.website.external.googlesheets.mapper.TeamMemberApplicationSheetMapper;
 import com.gdgoc.website.global.exception.BaseException;
 import com.gdgoc.website.global.exception.ErrorCode;
@@ -25,6 +27,8 @@ public class ApplicationSheetSyncService {
     private final GoogleSheetsClient googleSheetsClient;
     private final TeamMemberApplicationService teamMemberApplicationService;
     private final ApplicationInterviewTimeRepository applicationInterviewTimeRepository;
+    private final MemberApplicationRepository memberApplicationRepository;
+    private final MemberApplicationSheetMapper memberApplicationSheetMapper;
 
     @Transactional
     public void syncApplication(Long applicationId) {
@@ -39,15 +43,24 @@ public class ApplicationSheetSyncService {
                 TeamMemberApplication teamMemberApplication = teamMemberApplicationService.findTeamMemberApplicationOrThrow(applicationId);
                 List<Long> selectedInterviewTimeSlotIds = applicationInterviewTimeRepository.findInterviewTimeSlotIdsByApplicationId(applicationId);
 
-                // 구글 시트 행으로 변환
                 List<Object> row = teamMemberApplicationSheetMapper.toRow(
                         application,
                         teamMemberApplication,
                         selectedInterviewTimeSlotIds
                 );
 
-                // Team Member 구글 시트에 추가
-                googleSheetsClient.appendTeamMemberApplication(row);
+                googleSheetsClient.appendTeamMemberApplication(applicationId, row);
+            } else if (application.getApplicationType() == ApplicationType.MEMBER) {
+                MemberApplication memberApplication = findMemberApplicationOrThrow(applicationId);
+                List<Long> selectedInterviewTimeSlotIds = applicationInterviewTimeRepository.findInterviewTimeSlotIdsByApplicationId(applicationId);
+
+                List<Object> row = memberApplicationSheetMapper.toRow(
+                        application,
+                        memberApplication,
+                        selectedInterviewTimeSlotIds
+                );
+
+                googleSheetsClient.appendMemberApplication(applicationId, row);
             }
 
             application.updateSheetSyncStatus(SheetSyncStatus.SUCCESS);
@@ -60,6 +73,14 @@ public class ApplicationSheetSyncService {
                     e
             );
         }
+    }
+
+    private MemberApplication findMemberApplicationOrThrow(Long applicationId) {
+        return memberApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> {
+                    log.error("Application(id={})은 존재하지만 MemberApplication이 존재하지 않습니다.", applicationId);
+                    return new BaseException(ErrorCode.APPLICATION_DETAIL_NOT_FOUND);
+                });
     }
 
 }
