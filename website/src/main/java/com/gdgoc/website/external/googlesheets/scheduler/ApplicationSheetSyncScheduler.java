@@ -1,6 +1,5 @@
 package com.gdgoc.website.external.googlesheets.scheduler;
 
-import com.gdgoc.website.application.entity.Application;
 import com.gdgoc.website.application.entity.ApplicationStatus;
 import com.gdgoc.website.application.entity.SheetSyncStatus;
 import com.gdgoc.website.application.repository.ApplicationRepository;
@@ -22,14 +21,14 @@ public class ApplicationSheetSyncScheduler {
 
     @Scheduled(fixedDelay = 30000) // 30초
     public void syncPendingApplications() {
-        List<Application> applications =
-                applicationRepository.findTop10ByApplicationStatusAndSheetSyncStatusOrderByIdAsc(
+        List<Long> applicationIds =
+                applicationRepository.findIdsByApplicationStatusAndSheetSyncStatus(
                         ApplicationStatus.SUBMITTED,
                         SheetSyncStatus.PENDING
                 );
 
-        for (Application application : applications) {
-            applicationSheetSyncService.syncApplication(application.getId());
+        for (Long applicationId : applicationIds) {
+            applicationSheetSyncService.syncApplication(applicationId);
         }
     }
 
