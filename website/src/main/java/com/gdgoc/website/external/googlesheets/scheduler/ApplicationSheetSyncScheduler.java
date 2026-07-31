@@ -6,6 +6,7 @@ import com.gdgoc.website.application.repository.ApplicationRepository;
 import com.gdgoc.website.external.googlesheets.service.ApplicationSheetSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,8 @@ public class ApplicationSheetSyncScheduler {
         List<Long> applicationIds =
                 applicationRepository.findIdsByApplicationStatusAndSheetSyncStatus(
                         ApplicationStatus.SUBMITTED,
-                        SheetSyncStatus.PENDING
+                        SheetSyncStatus.PENDING,
+                        PageRequest.of(0, 10)
                 );
 
         for (Long applicationId : applicationIds) {

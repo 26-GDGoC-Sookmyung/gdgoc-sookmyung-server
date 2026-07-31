@@ -5,6 +5,7 @@ import com.gdgoc.website.application.entity.ApplicationStatus;
 import com.gdgoc.website.application.entity.ApplicationType;
 import com.gdgoc.website.application.entity.SheetSyncStatus;
 import com.gdgoc.website.user.entity.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,7 +24,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 """)
     List<Long> findIdsByApplicationStatusAndSheetSyncStatus(
             @Param("applicationStatus") ApplicationStatus applicationStatus,
-            @Param("sheetSyncStatus") SheetSyncStatus sheetSyncStatus
+            @Param("sheetSyncStatus") SheetSyncStatus sheetSyncStatus,
+            Pageable pageable
     );
     @Query("""
     select a
