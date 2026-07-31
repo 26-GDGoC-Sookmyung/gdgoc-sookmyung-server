@@ -124,13 +124,7 @@ public class TeamMemberApplicationService {
                     request.onLeave()
             );
 
-            Long applicationId = application.getId();
-            TeamMemberApplication teamMemberApplication = teamMemberApplicationRepository
-                    .findById(applicationId)
-                    .orElseThrow(() -> {
-                        log.error("Application(id={})은 존재하지만 TeamMemberApplication이 존재하지 않습니다.", applicationId);
-                        return new BaseException(ErrorCode.APPLICATION_DETAIL_NOT_FOUND);
-                    });
+            TeamMemberApplication teamMemberApplication = findTeamMemberApplicationOrThrow(application.getId());
 
             teamMemberApplication.update(
                     request.introduction(),
@@ -149,6 +143,15 @@ public class TeamMemberApplicationService {
         replaceApplicationInterviewTimes(application, request.interviewTimeSlotIds());
 
         return application;
+    }
+
+    public TeamMemberApplication findTeamMemberApplicationOrThrow(Long applicationId) {
+        return teamMemberApplicationRepository
+                .findById(applicationId)
+                .orElseThrow(() -> {
+                    log.error("Application(id={})은 존재하지만 TeamMemberApplication이 존재하지 않습니다.", applicationId);
+                    return new BaseException(ErrorCode.APPLICATION_DETAIL_NOT_FOUND);
+                });
     }
 
     /** 면접 가능 시간을 새 목록으로 교체 */
@@ -209,12 +212,8 @@ public class TeamMemberApplicationService {
         }
 
         Long applicationId = application.getId();
-        TeamMemberApplication teamMemberApplication = teamMemberApplicationRepository
-                .findById(applicationId)
-                .orElseThrow(() -> {
-                    log.error("Application(id={})은 존재하지만 TeamMemberApplication이 존재하지 않습니다.", applicationId);
-                    return new BaseException(ErrorCode.APPLICATION_DETAIL_NOT_FOUND);
-                });
+
+        TeamMemberApplication teamMemberApplication = findTeamMemberApplicationOrThrow(applicationId);
 
         List<Long> interviewTimeSlotIds = applicationInterviewTimeRepository.findInterviewTimeSlotIdsByApplicationId(applicationId);
 

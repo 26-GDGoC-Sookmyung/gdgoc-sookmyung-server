@@ -91,4 +91,8 @@ public class Application extends BaseTimeEntity {
         this.sheetSyncStatus = SheetSyncStatus.PENDING;
     }
 
+    public void updateSheetSyncStatus(SheetSyncStatus sheetSyncStatus) {
+        this.sheetSyncStatus = sheetSyncStatus;
+    }
+
 }
