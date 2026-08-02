@@ -34,4 +34,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     where a.id = :applicationId
 """)
     Optional<Application> findByIdWithUser(@Param("applicationId") Long applicationId);
+    List<Application> findAllByUser(User user);
 }

@@ -15,42 +15,30 @@ public record TeamMemberApplicationResponse(
         ApplicationStatus applicationStatus,
 
         String studentNumber,
-
         String phoneNumber,
-
         String major,
-
         Integer completedSemester,
-
         Boolean onLeave,
 
         String introduction,
-
         String motivation,
-
         String communityPerspective,
-
         String goal,
 
         String portfolioUrl,
-
         String project,
-
         String leadershipExperience,
-
         String techStack,
 
         String studyField,
-
         Set<TeamMemberRole> roles,
-
         String eventIdea,
 
         List<Long> interviewTimeSlotIds
 
 ) {
 
-    public static TeamMemberApplicationResponse from(
+    public static TeamMemberApplicationResponse of(
             Application application,
             TeamMemberApplication teamMemberApplication,
             List<Long> interviewTimeSlotIds
