@@ -217,7 +217,7 @@ public class TeamMemberApplicationService {
 
         List<Long> interviewTimeSlotIds = applicationInterviewTimeRepository.findInterviewTimeSlotIdsByApplicationId(applicationId);
 
-        return TeamMemberApplicationResponse.from(
+        return TeamMemberApplicationResponse.of(
                 application,
                 teamMemberApplication,
                 interviewTimeSlotIds
