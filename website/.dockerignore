@@ -1,0 +1,6 @@
+.gradle/
+.idea/
+build/
+.env
+*.iml
+src/main/resources/google/service-account.json

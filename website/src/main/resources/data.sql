@@ -1,7 +1,7 @@
 -- ===========================
 -- InterviewTimeSlot
 -- ===========================
-INSERT IGNORE INTO interview_time_slot (application_type, time_slot) VALUES
+INSERT INTO interview_time_slot (application_type, time_slot) VALUES
 ('MEMBER', '08/28 (금) 오후 5시 ~ 오후 6시'),
 ('MEMBER', '08/28 (금) 오후 6시 ~ 오후 7시'),
 ('MEMBER', '08/28 (금) 오후 7시 ~ 오후 8시'),
@@ -34,9 +34,10 @@ INSERT IGNORE INTO interview_time_slot (application_type, time_slot) VALUES
 ('MEMBER', '09/02 (수) 오후 6시 ~ 오후 7시'),
 ('MEMBER', '09/02 (수) 오후 7시 ~ 오후 8시'),
 ('MEMBER', '09/02 (수) 오후 8시 ~ 오후 9시'),
-('MEMBER', '09/02 (수) 오후 9시 ~ 오후 10시');
+('MEMBER', '09/02 (수) 오후 9시 ~ 오후 10시')
+ON CONFLICT (application_type, time_slot) DO NOTHING;
 
-INSERT IGNORE INTO interview_time_slot (application_type, time_slot) VALUES
+INSERT INTO interview_time_slot (application_type, time_slot) VALUES
 ('TEAM_MEMBER', '08/21 (금) 오후 5시 ~ 오후 6시'),
 ('TEAM_MEMBER', '08/21 (금) 오후 6시 ~ 오후 7시'),
 ('TEAM_MEMBER', '08/21 (금) 오후 7시 ~ 오후 8시'),
@@ -51,14 +52,15 @@ INSERT IGNORE INTO interview_time_slot (application_type, time_slot) VALUES
 ('TEAM_MEMBER', '08/23 (일) 오후 2시 ~ 오후 3시'),
 ('TEAM_MEMBER', '08/23 (일) 오후 3시 ~ 오후 4시'),
 ('TEAM_MEMBER', '08/23 (일) 오후 4시 ~ 오후 5시'),
-('TEAM_MEMBER', '08/23 (일) 오후 5시 ~ 오후 6시');
+('TEAM_MEMBER', '08/23 (일) 오후 5시 ~ 오후 6시')
+ON CONFLICT (application_type, time_slot) DO NOTHING;
 
 
 
 -- ===========================
 -- Activity
 -- ===========================
-INSERT IGNORE INTO activity (generation, name, description, quarter, period, image_url) VALUES
+INSERT INTO activity (generation, name, description, quarter, period, image_url) VALUES
 -- 1분기
 (6, '1분기 스터디', 'Spring, Flutter, React, AI/DL 총 4개 스터디 운영', 'Q1', '9월 ~ 12월', ''),
 (6, '팀멤버 스피커세션', '운영진이 지식과 경험을 공유하는 발표 세션', 'Q1', '9월 ~ 12월', ''),
@@ -85,4 +87,5 @@ INSERT IGNORE INTO activity (generation, name, description, quarter, period, ima
 (6, 'Build with AI', '최신 AI 기술을 직접 실습하는 Google AI Hands-on 세션', 'Q3', '5월', ''),
 (6, '클라우드 연합 세션', '클라우드 기술 학습을 위한 성균관대학교 연합 기술 세션', 'Q3', '5월', ''),
 (6, '졸업식', '한 기수의 활동을 마무리하는 수료 및 네트워킹 행사', 'Q3', '5월', ''),
-(6, '연합프로젝트 Final Demo', '프로젝트 최종 결과물을 발표하는 성과 공유 행사', 'Q3', '6월', '');
+(6, '연합프로젝트 Final Demo', '프로젝트 최종 결과물을 발표하는 성과 공유 행사', 'Q3', '6월', '')
+ON CONFLICT (name, generation) DO NOTHING;

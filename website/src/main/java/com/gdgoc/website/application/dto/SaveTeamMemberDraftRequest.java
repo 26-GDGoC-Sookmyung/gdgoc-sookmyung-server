@@ -42,7 +42,7 @@ public record SaveTeamMemberDraftRequest(
 
         String eventIdea,
 
-        @Schema(example = "[24, 25]")
+        @Schema(example = "[29, 30]")
         List<Long> interviewTimeSlotIds
 
 ) {

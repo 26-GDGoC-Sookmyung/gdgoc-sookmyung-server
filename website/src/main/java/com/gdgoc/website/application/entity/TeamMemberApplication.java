@@ -23,33 +23,33 @@ public class TeamMemberApplication {
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String introduction;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String motivation;
 
     // 숙명여대 개발자 커뮤니티에 대한 생각
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String communityPerspective;
 
     // 얻어가고자 하는 것
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String goal;
 
     private String portfolioUrl;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String project;
 
     // 진행 / 커뮤니티 경험
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String leadershipExperience;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String techStack;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String studyField;
 
     // 가능한 역할
@@ -62,7 +62,7 @@ public class TeamMemberApplication {
     @Column(name = "role")
     private Set<TeamMemberRole> roles = new HashSet<>();
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String eventIdea;
 
     public TeamMemberApplication(

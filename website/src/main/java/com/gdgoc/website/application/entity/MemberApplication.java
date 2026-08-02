@@ -20,32 +20,32 @@ public class MemberApplication {
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String introduction;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String motivation;
 
     // 얻어가고자 하는 것
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String goal;
 
     private String portfolioUrl;
 
     // 경력 / 활동 사항
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String experience;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String project;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String studyInterest;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String projectIdea;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String techStack;
 
 }
