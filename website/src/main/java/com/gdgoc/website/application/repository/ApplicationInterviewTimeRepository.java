@@ -14,6 +14,7 @@ public interface ApplicationInterviewTimeRepository extends JpaRepository<Applic
         select ait.interviewTimeSlot.id
         from ApplicationInterviewTime ait
         where ait.application.id = :applicationId
+        order by ait.interviewTimeSlot.id
         """)
     List<Long> findInterviewTimeSlotIdsByApplicationId(@Param("applicationId") Long applicationId);
 }
