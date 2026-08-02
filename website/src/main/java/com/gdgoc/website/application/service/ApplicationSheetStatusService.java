@@ -3,7 +3,6 @@ package com.gdgoc.website.application.service;
 import com.gdgoc.website.application.entity.Application;
 import com.gdgoc.website.application.entity.SheetSyncStatus;
 import com.gdgoc.website.application.repository.ApplicationRepository;
-import com.gdgoc.website.external.googlesheets.service.ApplicationSheetSyncService;
 import com.gdgoc.website.global.exception.BaseException;
 import com.gdgoc.website.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ApplicationSheetStatusService {
 
     private final ApplicationRepository applicationRepository;
-    private final ApplicationSheetSyncService applicationSheetSyncService;
 
     @Transactional
     public void markSuccess(Long applicationId) {
