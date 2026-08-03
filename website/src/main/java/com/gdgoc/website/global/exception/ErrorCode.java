@@ -6,6 +6,16 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    //Auth 관련
+    AUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않거나 만료된 JWT 토큰입니다."),
+    LOGOUT_TOKEN(HttpStatus.UNAUTHORIZED, "이미 로그아웃 처리된 토큰입니다. 다시 로그인해주세요."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 요청에 대한 접근 권한이 없습니다."),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "이메일 인증번호가 만료되었습니다. 다시 요청해주세요."),
+    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "이메일 인증번호가 일치하지 않습니다."),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않은 계정입니다."),
+
     // 사용자 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
 

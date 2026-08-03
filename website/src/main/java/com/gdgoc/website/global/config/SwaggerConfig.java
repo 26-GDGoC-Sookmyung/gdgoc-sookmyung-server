@@ -1,7 +1,10 @@
 package com.gdgoc.website.global.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,6 +13,17 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI gdgocOpenAPI() {
+
+        String jwtSchemeName = "BearerAuth";
+        SecurityScheme securityScheme = new SecurityScheme()
+            .name(jwtSchemeName)
+            .type(SecurityScheme.Type.HTTP)
+            .scheme("bearer")
+            .bearerFormat("JWT");
+
+        SecurityRequirement securityRequirement = new SecurityRequirement()
+            .addList(jwtSchemeName);
+
         return new OpenAPI()
                 .info(new Info()
                         .title("GDGoC Website API")
@@ -52,7 +66,10 @@ public class SwaggerConfig {
                                 ### 참고사항 ⭐
                                 - 일부 필드(예: Enum 값, 전화번호 형식)의 상세 설명은 각 API의 Request Body → Schema 탭에서 확인할 수 있습니다.
                                 - API별 예외 상황, 에러 코드 및 상세 설명은 노션 'Back-End > API별 예외 상황' 페이지를 참고해주세요.
-                                """));
+                                """))
+                .addSecurityItem(securityRequirement)
+                        .components(new Components()
+                        .addSecuritySchemes(jwtSchemeName, securityScheme));
     }
 
 }
