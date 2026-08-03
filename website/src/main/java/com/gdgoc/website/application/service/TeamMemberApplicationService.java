@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +28,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class TeamMemberApplicationService {
+
+    private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
 
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
@@ -37,7 +41,6 @@ public class TeamMemberApplicationService {
     public void saveTeamMemberDraft(Long userId, SaveTeamMemberDraftRequest request) {
          saveOrUpdateTeamMemberApplication(userId, request);
     }
-
 
     @Transactional
     public void submitTeamMemberApplication(Long userId, SubmitTeamMemberApplicationRequest request) {
@@ -69,6 +72,14 @@ public class TeamMemberApplicationService {
 
     /** Team Member Application 생성 및 수정 공통 로직 */
     private Application saveOrUpdateTeamMemberApplication(Long userId, SaveTeamMemberDraftRequest request) {
+        // 0. 지원 기간인지 확인
+        LocalDateTime now = LocalDateTime.now(KOREA_ZONE_ID);
+
+        // 테스트를 위해 주석처리
+//        if (!ApplicationType.TEAM_MEMBER.isSubmissionOpen(now)) {
+//            throw new BaseException(ErrorCode.APPLICATION_PERIOD_CLOSED);
+//        }
+
         // 1. 현재 로그인한 사용자 조회
         User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));

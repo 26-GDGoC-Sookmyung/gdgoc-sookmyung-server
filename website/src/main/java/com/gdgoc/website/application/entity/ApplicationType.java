@@ -22,4 +22,9 @@ public enum ApplicationType {
     private final LocalDateTime recruitmentStartAt;
     private final LocalDateTime recruitmentEndAt;
 
+    public boolean isSubmissionOpen(LocalDateTime now) {
+        return !now.isBefore(recruitmentStartAt)
+                && now.isBefore(recruitmentEndAt);
+    }
+
 }

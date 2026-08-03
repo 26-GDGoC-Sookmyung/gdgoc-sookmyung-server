@@ -18,6 +18,7 @@ public enum ErrorCode {
     INVALID_INTERVIEW_TIME_SLOT(HttpStatus.BAD_REQUEST, "유효하지 않은 Interview Time Slot입니다."),
     INVALID_INTERVIEW_TIME_SLOT_COUNT(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 면접 시간대 개수입니다."),
     INVALID_APPLICATION_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 Application Type입니다."),
+    APPLICATION_PERIOD_CLOSED(HttpStatus.BAD_REQUEST, "지원 기간이 아니거나 마감되었습니다."),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값입니다.");
