@@ -78,7 +78,7 @@ public record SubmitTeamMemberApplicationRequest(
         String eventIdea,
 
         @NotEmpty
-        @Schema(example = "[24, 25]")
+        @Schema(example = "[29, 30]")
         List<Long> interviewTimeSlotIds
 
 ) {

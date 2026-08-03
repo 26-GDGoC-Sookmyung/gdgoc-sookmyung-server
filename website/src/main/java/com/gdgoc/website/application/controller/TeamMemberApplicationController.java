@@ -45,10 +45,10 @@ public class TeamMemberApplicationController {
     @Operation(summary = "Team Member 지원서 제출")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "제출 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 (INVALID_INPUT_VALUE, APPLICATION_ALREADY_SUBMITTED, INVALID_INTERVIEW_TIME_SLOT)"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (INVALID_INPUT_VALUE, INVALID_INTERVIEW_TIME_SLOT)"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 데이터 (INTERVIEW_TIME_SLOT_NOT_FOUND)")
     })
-    public ResponseEntity<BaseResponse<?>> submitTeamMemberApplicaiton(@Valid @RequestBody SubmitTeamMemberApplicationRequest teamMemberApplication) {
+    public ResponseEntity<BaseResponse<?>> submitTeamMemberApplication(@Valid @RequestBody SubmitTeamMemberApplicationRequest teamMemberApplication) {
         teamMemberApplicationService.submitTeamMemberApplication(1L, teamMemberApplication);
         return ResponseEntity.ok(BaseResponse.success(null));
     }

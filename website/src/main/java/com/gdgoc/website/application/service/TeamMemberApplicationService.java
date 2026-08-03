@@ -110,12 +110,6 @@ public class TeamMemberApplicationService {
             teamMemberApplicationRepository.save(teamMemberApplication);
         } else {
             // 3-2. 있을 경우 업데이트
-
-            // 이미 제출된 지원서인 경우 에러
-            if (application.getApplicationStatus() == ApplicationStatus.SUBMITTED) {
-                throw new BaseException(ErrorCode.APPLICATION_ALREADY_SUBMITTED);
-            }
-
             application.update(
                     request.studentNumber(),
                     request.phoneNumber(),
