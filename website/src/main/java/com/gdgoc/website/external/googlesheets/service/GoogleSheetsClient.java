@@ -20,7 +20,7 @@ public class GoogleSheetsClient {
 
     private final Sheets sheets;
 
-    private void appendIfAbsent(String sheetName, Long applicationId, List<Object> row) throws IOException {
+    private void upsert(String sheetName, Long applicationId, List<Object> row) throws IOException {
         // A열의 application ID만 조회
         ValueRange ids = sheets.spreadsheets()
                 .values()
@@ -31,16 +31,9 @@ public class GoogleSheetsClient {
         List<List<Object>> values = ids.getValues();
         int existingRow = findApplicationRow(values, applicationId);
 
-        if (existingRow > 0) {
-            log.info("이미 Google Sheets에 존재하는 지원서이므로 동기화를 건너뜁니다. - sheetName: {}, applicationId: {}, row: {}",
-                    sheetName,
-                    applicationId,
-                    existingRow
-            );
-            return;
-        }
-
-        int targetRow = findNextRow(values);
+        int targetRow = existingRow > 0
+                ? existingRow  // 동일한 applicationId가 시트에 있으면 업데이트
+                : findNextRow(values);
 
         ValueRange body = new ValueRange()
                 .setValues(List.of(row));
@@ -110,11 +103,11 @@ public class GoogleSheetsClient {
     }
 
     public void appendMemberApplication(Long applicationId, List<Object> row) throws IOException {
-        appendIfAbsent("Member", applicationId, row);
+        upsert("Member", applicationId, row);
     }
 
     public void appendTeamMemberApplication(Long applicationId, List<Object> row) throws IOException {
-        appendIfAbsent("TeamMember", applicationId, row);
+        upsert("TeamMember", applicationId, row);
     }
 
 }

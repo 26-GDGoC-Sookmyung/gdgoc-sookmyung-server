@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +29,8 @@ import java.util.Set;
 @Slf4j
 public class TeamMemberApplicationService {
 
+    private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
+
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final TeamMemberApplicationRepository teamMemberApplicationRepository;
@@ -35,13 +39,21 @@ public class TeamMemberApplicationService {
 
     @Transactional
     public void saveTeamMemberDraft(Long userId, SaveTeamMemberDraftRequest request) {
-         saveOrUpdateTeamMemberApplication(userId, request);
-    }
+        UserApplicationContext userAndApplication = getUserAndApplication(userId);
+        Application application = userAndApplication.application();
 
+        if (application != null && application.getApplicationStatus() == ApplicationStatus.SUBMITTED) {
+            throw new BaseException(ErrorCode.APPLICATION_ALREADY_SUBMITTED);
+        }
+        
+         saveOrUpdateTeamMemberApplication(userAndApplication.user(), application, request);
+    }
 
     @Transactional
     public void submitTeamMemberApplication(Long userId, SubmitTeamMemberApplicationRequest request) {
-        Application application = saveOrUpdateTeamMemberApplication(userId, toSaveTeamMemberDraftRequest(request));
+        UserApplicationContext userAndApplication = getUserAndApplication(userId);
+
+        Application application = saveOrUpdateTeamMemberApplication(userAndApplication.user(), userAndApplication.application(), toSaveTeamMemberDraftRequest(request));
         application.submit();
     }
 
@@ -68,18 +80,17 @@ public class TeamMemberApplicationService {
     }
 
     /** Team Member Application 생성 및 수정 공통 로직 */
-    private Application saveOrUpdateTeamMemberApplication(Long userId, SaveTeamMemberDraftRequest request) {
-        // 1. 현재 로그인한 사용자 조회
-        User user = userRepository.findByIdForUpdate(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));
+    private Application saveOrUpdateTeamMemberApplication(User user, Application application, SaveTeamMemberDraftRequest request) {
+        // 지원 기간인지 확인
+        LocalDateTime now = LocalDateTime.now(KOREA_ZONE_ID);
 
-        // 2. 해당 사용자가 작성한 Team Member 지원서가 있는지 확인
-        Application application = applicationRepository
-                .findByUserAndApplicationType(user, ApplicationType.TEAM_MEMBER)
-                .orElse(null);
+        // 테스트를 위해 주석처리
+//        if (!ApplicationType.TEAM_MEMBER.isSubmissionOpen(now)) {
+//            throw new BaseException(ErrorCode.APPLICATION_PERIOD_CLOSED);
+//        }
 
         if (application == null) {
-            // 3-1. 없을 경우 생성
+            // 사용자가 작성한 Team Member 지원서가 없을 경우 새로 생성
             application = new Application(
                     user,
                     ApplicationType.TEAM_MEMBER,
@@ -109,13 +120,7 @@ public class TeamMemberApplicationService {
 
             teamMemberApplicationRepository.save(teamMemberApplication);
         } else {
-            // 3-2. 있을 경우 업데이트
-
-            // 이미 제출된 지원서인 경우 에러
-            if (application.getApplicationStatus() == ApplicationStatus.SUBMITTED) {
-                throw new BaseException(ErrorCode.APPLICATION_ALREADY_SUBMITTED);
-            }
-
+            // 있을 경우 업데이트
             application.update(
                     request.studentNumber(),
                     request.phoneNumber(),
@@ -143,6 +148,19 @@ public class TeamMemberApplicationService {
         replaceApplicationInterviewTimes(application, request.interviewTimeSlotIds());
 
         return application;
+    }
+
+    private UserApplicationContext getUserAndApplication(Long userId) {
+        // 현재 로그인한 사용자 조회
+        User user = userRepository.findByIdForUpdate(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "해당 id의 사용자를 찾을 수 없습니다."));
+
+        // 해당 사용자가 작성한 Team Member 지원서가 있는지 확인
+        Application application = applicationRepository
+                .findByUserAndApplicationType(user, ApplicationType.TEAM_MEMBER)
+                .orElse(null);
+        
+        return new UserApplicationContext(user, application);
     }
 
     public TeamMemberApplication findTeamMemberApplicationOrThrow(Long applicationId) {
@@ -223,5 +241,10 @@ public class TeamMemberApplicationService {
                 interviewTimeSlotIds
         );
     }
+
+    private record UserApplicationContext(
+            User user,
+            Application application
+    ){}
 
 }
