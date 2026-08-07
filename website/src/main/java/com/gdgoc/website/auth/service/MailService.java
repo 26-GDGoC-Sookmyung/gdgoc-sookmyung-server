@@ -54,7 +54,7 @@ public class MailService {
                 """.formatted(verificationCode);
     }
 
-    private void sendEmail(String toEmail, String subject, String htmlContent) {
+    public void sendEmail(String toEmail, String subject, String htmlContent) {
         try {
             CreateEmailOptions sendEmailOptions = CreateEmailOptions.builder()
                 .from(mailProperties.getFormattedFrom())
