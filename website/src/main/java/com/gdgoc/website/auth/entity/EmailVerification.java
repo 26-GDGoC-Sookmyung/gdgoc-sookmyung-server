@@ -58,4 +58,10 @@ public class EmailVerification extends BaseTimeEntity {
     public void markAsVerified() {
         this.isVerified = true;
     }
+
+    public void updateCode(String newCode, int ttlMinutes) {
+        this.code = newCode;
+        this.isVerified = false;
+        this.expiresAt = LocalDateTime.now().plusMinutes(ttlMinutes);
+    }
 }

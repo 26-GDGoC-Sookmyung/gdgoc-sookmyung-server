@@ -30,7 +30,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse<String>> sendVerificationCode(
         @RequestBody @Valid SendVerificationRequest request
     ) {
-        authService.sendVerificationCode(request);
+        authService.sendVerificationCode(request.email());
         return ResponseEntity.ok(
             BaseResponse.success("인증메일이 성공적으로 발송되었습니다.", request.email())
         );
@@ -41,7 +41,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse<String>> verifyEmailCode(
         @RequestBody @Valid VerifyCodeRequest request
     ) {
-        authService.verifyEmailCode(request);
+        authService.verifyEmailCode(request.email(),request.code());
         return ResponseEntity.ok(
             BaseResponse.success("이메일 인증이 성공적으로 완료되었습니다.", request.email())
         );
