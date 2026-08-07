@@ -6,18 +6,24 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
-    //Auth 관련
+    // Auth 관련
     AUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않거나 만료된 JWT 토큰입니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),
+    INVALID_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "Authorization 헤더가 없거나 Bearer 토큰 형식이 아닙니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않거나 변조된 Access Token입니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 Access Token입니다. 토큰을 재발급받아주세요."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않거나 만료된 Refresh Token입니다. 다시 로그인해주세요."),
+    TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "토큰 정보가 일치하지 않습니다. 다시 로그인해주세요."),
     LOGOUT_TOKEN(HttpStatus.UNAUTHORIZED, "이미 로그아웃 처리된 토큰입니다. 다시 로그인해주세요."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 요청에 대한 접근 권한이 없습니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+
+    // 이메일 관련
+    VERIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "인증요청 내역이 없습니다. 먼저 인증메일을 요청해주세요."),
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "이메일 인증번호가 만료되었습니다. 다시 요청해주세요."),
     VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "이메일 인증번호가 일치하지 않습니다."),
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않은 계정입니다."),
-
-    // 사용자 관련
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입되어 있는 이메일입니다."),
 
     // 지원서 관련
     APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 Application을 찾을 수 없습니다."),
