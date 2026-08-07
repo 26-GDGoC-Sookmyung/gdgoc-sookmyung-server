@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,28 +41,28 @@ public class AuthService {
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final int VERIFICATION_TTL_MINUTES = 3;
 
-    // TODO 이메일 인증번호
     /**
-     * 1. 이메일 인증번호 발송 API
+     * 1. 이메일 인증번호 발송 (Resend 이메일 발송 연동)
      */
     @Transactional
-    public void sendVerificationCode(SendVerificationRequest request) {
-        // 이미 가입된 이메일인지 검사
-        if (userRepository.existsByEmail(request.email())) {
-            throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "이미 가입된 이메일입니다.");
-        }
+    public void sendVerificationCode(String email) {
+        String verificationCode = generateSixDigitCode();
 
-        // 인증코드 생성 및 메일 발송
-        String code = mailService.generateVerificationCode();
-        mailService.sendEmail(request.email(), code);
+        EmailVerification verificationEntity = emailVerificationRepository.findByEmail(email)
+            .map(entity -> {
+                entity.updateCode(verificationCode, VERIFICATION_TTL_MINUTES);
+                return entity;
+            })
+            .orElseGet(() -> EmailVerification.builder()
+                .email(email)
+                .code(verificationCode)
+                .ttlMinutes(VERIFICATION_TTL_MINUTES)
+                .build());
 
-        // DB 저장 (TTL 3분)
-        EmailVerification verification = EmailVerification.builder()
-            .email(request.email())
-            .code(code)
-            .ttlMinutes(3)
-            .build();
-        emailVerificationRepository.save(verification);
+        emailVerificationRepository.save(verificationEntity);
+        mailService.sendVerificationEmail(email, verificationCode);
+
+        log.info("인증메일 발송 완료 - 대상: {}, 만료일시: {}", email, verificationEntity.getExpiresAt());
     }
 
     /**
@@ -101,6 +102,8 @@ public class AuthService {
             .password(encodedPassword)
             .name(request.name())
             .build();
+
+        emailVerificationRepository.deleteByEmail(request.email());
 
         return userRepository.save(user).getId();
     }

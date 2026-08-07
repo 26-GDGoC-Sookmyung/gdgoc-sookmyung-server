@@ -41,7 +41,7 @@ dependencies {
 
     // Auth
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'com.resend:resend-java:3.1.0'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
