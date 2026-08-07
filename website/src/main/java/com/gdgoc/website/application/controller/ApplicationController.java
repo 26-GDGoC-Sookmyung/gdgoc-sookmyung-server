@@ -3,6 +3,8 @@ package com.gdgoc.website.application.controller;
 import com.gdgoc.website.application.dto.ApplicationResponse;
 import com.gdgoc.website.application.service.ApplicationService;
 import com.gdgoc.website.global.response.BaseResponse;
+import com.gdgoc.website.global.security.AuthUser;
+import com.gdgoc.website.global.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -31,8 +33,8 @@ public class ApplicationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
-    public ResponseEntity<BaseResponse<?>> getApplications() {
-        List<ApplicationResponse> applications = applicationService.getApplications(1L);
+    public ResponseEntity<BaseResponse<?>> getApplications(@AuthUser CurrentUser currentUser) {
+        List<ApplicationResponse> applications = applicationService.getApplications(currentUser.id());
         return ResponseEntity.ok(BaseResponse.success(applications));
     }
 
