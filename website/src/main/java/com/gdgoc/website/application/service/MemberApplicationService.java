@@ -1,11 +1,15 @@
 package com.gdgoc.website.application.service;
 
 import com.gdgoc.website.application.dto.MemberApplicationResponse;
+import com.gdgoc.website.application.dto.MemberInterviewTimeSlotResponse;
+import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.entity.Application;
 import com.gdgoc.website.application.entity.ApplicationType;
+import com.gdgoc.website.application.entity.InterviewTimeSlot;
 import com.gdgoc.website.application.entity.MemberApplication;
 import com.gdgoc.website.application.repository.ApplicationInterviewTimeRepository;
 import com.gdgoc.website.application.repository.ApplicationRepository;
+import com.gdgoc.website.application.repository.InterviewTimeSlotRepository;
 import com.gdgoc.website.application.repository.MemberApplicationRepository;
 import com.gdgoc.website.global.exception.BaseException;
 import com.gdgoc.website.global.exception.ErrorCode;
@@ -27,6 +31,20 @@ public class MemberApplicationService {
     private final ApplicationRepository applicationRepository;
     private final MemberApplicationRepository memberApplicationRepository;
     private final ApplicationInterviewTimeRepository applicationInterviewTimeRepository;
+    private final InterviewTimeSlotRepository interviewTimeSlotRepository;
+
+    public List<MemberInterviewTimeSlotResponse> getMemberInterviewTimeSlots() {
+        List<InterviewTimeSlot> timeSlots = interviewTimeSlotRepository.findAllByApplicationTypeOrderById(ApplicationType.MEMBER);
+        return timeSlots.stream().map(this::toMemberInterviewTimeSlotResponse).toList();
+    }
+
+    private MemberInterviewTimeSlotResponse toMemberInterviewTimeSlotResponse(InterviewTimeSlot interviewTimeSlot) {
+        return new MemberInterviewTimeSlotResponse(
+            interviewTimeSlot.getId(),
+            interviewTimeSlot.getTimeSlot()
+        );
+    }
+
 
     @Transactional(readOnly = true)
     public MemberApplicationResponse getMemberApplication(Long userId) {

@@ -1,8 +1,10 @@
 package com.gdgoc.website.application.service;
 
 import com.gdgoc.website.application.dto.ApplicationResponse;
+import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.entity.Application;
 import com.gdgoc.website.application.entity.ApplicationType;
+import com.gdgoc.website.application.entity.InterviewTimeSlot;
 import com.gdgoc.website.application.repository.ApplicationRepository;
 import com.gdgoc.website.global.exception.BaseException;
 import com.gdgoc.website.global.exception.ErrorCode;

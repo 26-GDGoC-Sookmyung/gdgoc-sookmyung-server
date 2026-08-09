@@ -1,12 +1,15 @@
 package com.gdgoc.website.application.controller;
 
 import com.gdgoc.website.application.dto.MemberApplicationResponse;
+import com.gdgoc.website.application.dto.MemberInterviewTimeSlotResponse;
+import com.gdgoc.website.application.dto.TeamMemberInterviewTimeSlotResponse;
 import com.gdgoc.website.application.service.MemberApplicationService;
 import com.gdgoc.website.global.response.BaseResponse;
 import com.gdgoc.website.global.security.AuthUser;
 import com.gdgoc.website.global.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class MemberApplicationController {
     private final MemberApplicationService memberApplicationService;
+
+    @GetMapping("/interview-time")
+    @Operation(summary = "Member 면접시간대 조회")
+    public ResponseEntity<BaseResponse<?>> getMemberInterviewTimeSlots() {
+        List<MemberInterviewTimeSlotResponse> interviewTimeSlots = memberApplicationService.getMemberInterviewTimeSlots();
+        return ResponseEntity.ok(BaseResponse.success(interviewTimeSlots));
+    }
 
     @GetMapping
     @Operation(summary = "기존에 작성하던 / 제출한 Member 지원서 내용 조회",
