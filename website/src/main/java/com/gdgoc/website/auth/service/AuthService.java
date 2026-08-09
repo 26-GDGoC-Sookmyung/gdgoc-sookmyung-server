@@ -2,6 +2,7 @@ package com.gdgoc.website.auth.service;
 
 import com.gdgoc.website.auth.dto.LoginRequest;
 import com.gdgoc.website.auth.dto.ReissueRequest;
+import com.gdgoc.website.auth.dto.ResetPasswordWithCodeRequest;
 import com.gdgoc.website.auth.dto.SendVerificationRequest;
 import com.gdgoc.website.auth.dto.SignupRequest;
 import com.gdgoc.website.auth.dto.TokenResponse;
@@ -39,30 +40,33 @@ public class AuthService {
     private final TokenBlacklistRepository tokenBlacklistRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private static final SecureRandom secureRandom = new SecureRandom();
-    private static final int VERIFICATION_TTL_MINUTES = 3;
+    private static final int SIGNUP_CODE_EXPIRATION_MINUTES = 3;
+    private static final int PASSWORD_RESET_CODE_EXPIRATION_MINUTES = 5;
 
     /**
-     * 1. 이메일 인증번호 발송 (Resend 이메일 발송 연동)
+     * 회원가입 인증번호 발송
      */
     @Transactional
     public void sendVerificationCode(String email) {
-        String verificationCode = generateSixDigitCode();
-
-        EmailVerification verificationEntity = emailVerificationRepository.findByEmail(email)
-            .map(entity -> {
-                entity.updateCode(verificationCode, VERIFICATION_TTL_MINUTES);
-                return entity;
-            })
-            .orElseGet(() -> EmailVerification.builder()
-                .email(email)
-                .code(verificationCode)
-                .ttlMinutes(VERIFICATION_TTL_MINUTES)
-                .build());
-
-        emailVerificationRepository.save(verificationEntity);
+        String verificationCode = saveOrUpdateEmailVerification(email, SIGNUP_CODE_EXPIRATION_MINUTES);
         mailService.sendVerificationEmail(email, verificationCode);
+        log.info("회원가입 인증번호 발송 완료 - 대상 이메일: {}", email);
+    }
 
-        log.info("인증메일 발송 완료 - 대상: {}, 만료일시: {}", email, verificationEntity.getExpiresAt());
+    /**
+     * 비밀번호 재설정 인증번호 발송
+     */
+    @Transactional
+    public void sendPasswordResetEmail(SendVerificationRequest request) {
+        String email = request.email();
+
+        if (!userRepository.existsByEmail(email)) {
+            throw new BaseException(ErrorCode.USER_NOT_FOUND, "가입되지 않은 이메일입니다.");
+        }
+
+        String verificationCode = saveOrUpdateEmailVerification(email, PASSWORD_RESET_CODE_EXPIRATION_MINUTES);
+        mailService.sendPasswordResetEmail(email, verificationCode);
+        log.info("비밀번호 재설정용 인증번호 발송 완료 - 대상 이메일: {}", email);
     }
 
     /**
@@ -191,6 +195,58 @@ public class AuthService {
         savedToken.updateToken(newRefreshToken, jwtTokenProvider.getRefreshTokenValidityInMs());
 
         return new TokenResponse(newAccessToken, newRefreshToken);
+    }
+
+    /**
+     * 비밀번호 갱신
+     */
+    @Transactional
+    public void resetPasswordWithCode(ResetPasswordWithCodeRequest request) {
+        User user = userRepository.findByEmail(request.email())
+            .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND, "가입되지 않은 이메일입니다."));
+
+        EmailVerification verificationEntity = emailVerificationRepository.findByEmail(request.email())
+            .orElseThrow(() -> new BaseException(ErrorCode.VERIFICATION_NOT_FOUND, "인증요청 내역이 없습니다. 먼저 인증메일을 요청해주세요."));
+
+        if (verificationEntity.isExpired()) {
+            throw new BaseException(ErrorCode.VERIFICATION_CODE_EXPIRED);
+        }
+
+        if (!verificationEntity.getCode().equals(request.code())) {
+            throw new BaseException(ErrorCode.VERIFICATION_CODE_MISMATCH);
+        }
+
+        user.updatePassword(passwordEncoder.encode(request.newPassword()));
+
+        emailVerificationRepository.deleteByEmail(request.email());
+
+        log.info("비밀번호 재설정 완료 - 대상 이메일: {}", user.getEmail());
+    }
+
+    /**
+     * 이메일 인증 엔티티 저장/업데이트 공통 헬퍼 메서드
+     *
+     * @param email 수신자 이메일
+     * @param ttlMinutes 만료 시간(분)
+     * @return 생성된 6자리 인증 코드
+     */
+    private String saveOrUpdateEmailVerification(String email, int ttlMinutes) {
+        String verificationCode = generateSixDigitCode();
+
+        EmailVerification verificationEntity = emailVerificationRepository.findByEmail(email)
+            .map(entity -> {
+                entity.updateCode(verificationCode, ttlMinutes);
+                return entity;
+            })
+            .orElseGet(() -> EmailVerification.builder()
+                .email(email)
+                .code(verificationCode)
+                .ttlMinutes(ttlMinutes)
+                .build());
+
+        emailVerificationRepository.save(verificationEntity);
+
+        return verificationCode;
     }
 
     /**

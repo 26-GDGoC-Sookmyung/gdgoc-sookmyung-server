@@ -20,9 +20,6 @@ public class MailService {
     private final MailProperties mailProperties;
 
     /**
-     * [외부 공개 메서드] 회원가입/인증을 위한 6자리 코드 메일 발송
-     * HTML 템플릿 생성과 제목 설정을 책임집니다.
-     *
      * @param toEmail 수신자 이메일
      * @param verificationCode 6자리 인증코드
      */
@@ -30,6 +27,17 @@ public class MailService {
         String subject = "[GDGoC Sookmyung] 이메일 인증코드 안내";
 
         String htmlContent = buildVerificationHtml(verificationCode);
+        sendEmail(toEmail, subject, htmlContent);
+    }
+
+    /**
+     * @param toEmail 수신자 이메일
+     * @param verificationCode 6자리 인증코드
+     */
+    public void sendPasswordResetEmail(String toEmail, String verificationCode) {
+        String subject = "[GDGoC Sookmyung] 비밀번호 재설정 인증코드 안내";
+
+        String htmlContent = buildPasswordResetHtml(verificationCode);
         sendEmail(toEmail, subject, htmlContent);
     }
 
@@ -49,6 +57,28 @@ public class MailService {
                     <p style='font-size: 13px; color: #777777;'>
                         * 본 인증코드는 3분 동안만 유효합니다.<br>
                         * 본인이 요청하지 않은 경우 이 메일을 무시해 주세요.
+                    </p>
+                </div>
+                """.formatted(verificationCode);
+    }
+
+    private String buildPasswordResetHtml(String verificationCode) {
+        return """
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;'>
+                    <h2 style='color: #ea4335; margin-bottom: 16px;'>GDGoC Sookmyung 비밀번호 재설정</h2>
+                    <p style='font-size: 15px; color: #333333; line-height: 1.6;'>
+                        안녕하세요, GDGoC Sookmyung 입니다.<br>
+                        비밀번호 재설정을 위한 6자리 인증코드를 안내해 드립니다.<br>
+                        아래의 코드를 웹페이지 입력창에 입력해 주세요.
+                    </p>
+                    <div style='margin: 24px 0; padding: 16px; background-color: #f4f5f7; text-align: center; border-radius: 6px;'>
+                        <span style='font-size: 28px; font-weight: bold; letter-spacing: 8px; color: #d93025;'>
+                            %s
+                        </span>
+                    </div>
+                    <p style='font-size: 13px; color: #777777;'>
+                        * 보안을 위해 본 인증코드는 <strong>5분 동안만 유효</strong>합니다.<br>
+                        * 본인이 요청하지 않은 경우 계정 도용의 위험이 있으니 관리자에게 문의해 주세요.
                     </p>
                 </div>
                 """.formatted(verificationCode);
