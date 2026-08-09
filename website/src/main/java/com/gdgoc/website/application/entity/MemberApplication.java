@@ -48,4 +48,31 @@ public class MemberApplication {
     @Column(columnDefinition = "TEXT")
     private String techStack;
 
+    public MemberApplication(Application application, String introduction, String motivation, String goal,
+        String portfolioUrl, String experience, String project, String studyInterest,
+        String projectIdea, String techStack) {
+        this.application = application;
+        this.introduction = introduction;
+        this.motivation = motivation;
+        this.goal = goal;
+        this.portfolioUrl = portfolioUrl;
+        this.experience = experience;
+        this.project = project;
+        this.studyInterest = studyInterest;
+        this.projectIdea = projectIdea;
+        this.techStack = techStack;
+    }
+
+    public void update(String introduction, String motivation, String goal, String portfolioUrl,
+        String experience, String project, String studyInterest, String projectIdea, String techStack) {
+        this.introduction = introduction;
+        this.motivation = motivation;
+        this.goal = goal;
+        this.portfolioUrl = portfolioUrl;
+        this.experience = experience;
+        this.project = project;
+        this.studyInterest = studyInterest;
+        this.projectIdea = projectIdea;
+        this.techStack = techStack;
+    }
 }
