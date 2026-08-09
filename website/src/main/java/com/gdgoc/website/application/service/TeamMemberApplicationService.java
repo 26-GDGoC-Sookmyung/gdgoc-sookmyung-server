@@ -84,10 +84,9 @@ public class TeamMemberApplicationService {
         // 지원 기간인지 확인
         LocalDateTime now = LocalDateTime.now(KOREA_ZONE_ID);
 
-        // 테스트를 위해 주석처리
-//        if (!ApplicationType.TEAM_MEMBER.isSubmissionOpen(now)) {
-//            throw new BaseException(ErrorCode.APPLICATION_PERIOD_CLOSED);
-//        }
+        if (!ApplicationType.TEAM_MEMBER.isSubmissionOpen(now)) {
+            throw new BaseException(ErrorCode.APPLICATION_PERIOD_CLOSED);
+        }
 
         if (application == null) {
             // 사용자가 작성한 Team Member 지원서가 없을 경우 새로 생성
