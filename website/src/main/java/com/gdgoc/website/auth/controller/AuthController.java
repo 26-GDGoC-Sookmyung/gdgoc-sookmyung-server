@@ -1,6 +1,7 @@
 package com.gdgoc.website.auth.controller;
 
 import com.gdgoc.website.auth.dto.ReissueRequest;
+import com.gdgoc.website.auth.dto.ResetPasswordWithCodeRequest;
 import com.gdgoc.website.auth.dto.SendVerificationRequest;
 import com.gdgoc.website.auth.dto.SignupRequest;
 import com.gdgoc.website.auth.dto.VerifyCodeRequest;
@@ -84,6 +85,28 @@ public class AuthController {
         TokenResponse tokenResponse = authService.reissue(request);
         return ResponseEntity.ok(
             BaseResponse.success("토큰이 성공적으로 재발급되었습니다.", tokenResponse)
+        );
+    }
+
+    @Operation(summary = "인증번호로 비밀번호 재설정", description = "이메일로 받은 인증번호를 확인한 후 새로운 비밀번호로 변경합니다.")
+    @PostMapping("/password/reset")
+    public ResponseEntity<BaseResponse<String>> resetPasswordWithCode(
+        @RequestBody @Valid ResetPasswordWithCodeRequest request
+    ) {
+        authService.resetPasswordWithCode(request);
+        return ResponseEntity.ok(
+            BaseResponse.success("비밀번호가 성공적으로 변경되었습니다.", request.email())
+        );
+    }
+
+    @Operation(summary = "비밀번호 재설정 인증메일 발송", description = "가입된 이메일인지 검증한 후, 비밀번호 재설정용 6자리 인증번호를 발송합니다.")
+    @PostMapping("/password/email/send")
+    public ResponseEntity<BaseResponse<String>> sendPasswordResetEmail(
+        @RequestBody @Valid SendVerificationRequest request
+    ) {
+        authService.sendPasswordResetEmail(request);
+        return ResponseEntity.ok(
+            BaseResponse.success("비밀번호 재설정 인증메일이 성공적으로 발송되었습니다.", request.email())
         );
     }
 }
