@@ -87,10 +87,9 @@ public class MemberApplicationService {
         // 지원 기간인지 확인
         LocalDateTime now = LocalDateTime.now(KOREA_ZONE_ID);
 
-        // 테스트를 위해 주석처리
-//        if (!ApplicationType.MEMBER.isSubmissionOpen(now)) {
-//            throw new BaseException(ErrorCode.APPLICATION_PERIOD_CLOSED);
-//        }
+        if (!ApplicationType.MEMBER.isSubmissionOpen(now)) {
+            throw new BaseException(ErrorCode.APPLICATION_PERIOD_CLOSED);
+        }
 
         if (application == null) {
             application = new Application(
