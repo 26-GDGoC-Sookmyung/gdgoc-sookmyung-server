@@ -11,7 +11,10 @@ public enum MemberTagType {
     BACKEND("Backend"),
     AI_ML("AI/ML"),
     DEV_REL("DevRel"),
-    REACT("React");
+    REACT("React"),
+    APP_WEB("App/Web"),
+    CLOUD("Cloud"),
+    SPRING("Spring");
 
     private final String displayName;
 
