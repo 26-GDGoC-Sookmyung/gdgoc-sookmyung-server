@@ -52,7 +52,13 @@ INSERT INTO interview_time_slot (application_type, time_slot) VALUES
 ('TEAM_MEMBER', '08/23 (일) 오후 2시 ~ 오후 3시'),
 ('TEAM_MEMBER', '08/23 (일) 오후 3시 ~ 오후 4시'),
 ('TEAM_MEMBER', '08/23 (일) 오후 4시 ~ 오후 5시'),
-('TEAM_MEMBER', '08/23 (일) 오후 5시 ~ 오후 6시')
+('TEAM_MEMBER', '08/23 (일) 오후 5시 ~ 오후 6시'),
+
+('TEAM_MEMBER', '08/24 (월) 오후 5시 ~ 오후 6시'),
+('TEAM_MEMBER', '08/24 (월) 오후 6시 ~ 오후 7시'),
+('TEAM_MEMBER', '08/24 (월) 오후 7시 ~ 오후 8시'),
+('TEAM_MEMBER', '08/24 (월) 오후 8시 ~ 오후 9시'),
+('TEAM_MEMBER', '08/24 (월) 오후 9시 ~ 오후 10시')
 ON CONFLICT (application_type, time_slot) DO NOTHING;
 
 
