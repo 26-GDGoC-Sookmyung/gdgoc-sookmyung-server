@@ -11,7 +11,7 @@ public enum ApplicationType {
 
     TEAM_MEMBER(
             LocalDateTime.of(2026, 8, 10, 0, 0),
-            LocalDateTime.of(2026, 8, 19, 0, 0)
+            LocalDateTime.of(2026, 8, 22, 0, 0)
     ),
 
     MEMBER(
