@@ -16,7 +16,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TeamMemberApplicationSheetMapper {
 
-    private static final int TEAM_MEMBER_SLOT_COUNT = 13;
+    private static final int TEAM_MEMBER_SLOT_COUNT = 18;
 
     private final InterviewTimeSlotRepository interviewTimeSlotRepository;
 
@@ -73,8 +73,13 @@ public class TeamMemberApplicationSheetMapper {
                 selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(9)),
                 selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(10)),
                 selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(11)),
-                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(12))
-        );
+                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(12)),
+                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(13)),
+                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(14)),
+                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(15)),
+                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(16)),
+                selectedInterviewTimeSlotIds.contains(interviewTimeSlotIds.get(17))
+            );
     }
 
     private void validateInterviewTimeSlotCount(List<Long> interviewTimeSlotIds) {
