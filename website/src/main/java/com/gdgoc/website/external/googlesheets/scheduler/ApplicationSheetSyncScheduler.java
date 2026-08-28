@@ -6,6 +6,7 @@ import com.gdgoc.website.application.repository.ApplicationRepository;
 import com.gdgoc.website.external.googlesheets.service.ApplicationSheetSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,10 @@ import java.util.List;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(
+        name = "sheets.sync.scheduler.enabled",
+        havingValue = "true"
+)
 @RequiredArgsConstructor
 public class ApplicationSheetSyncScheduler {
 
@@ -22,6 +27,7 @@ public class ApplicationSheetSyncScheduler {
 
     @Scheduled(fixedDelay = 30000) // 30초
     public void syncPendingApplications() {
+        System.out.println("스케줄러 실행");
         List<Long> applicationIds =
                 applicationRepository.findIdsByApplicationStatusAndSheetSyncStatus(
                         ApplicationStatus.SUBMITTED,
